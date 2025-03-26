@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task Recommendation System</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/static/styles.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8f9fa;
+            padding-top: 20px;
+        }
+        .task-card {
+            margin-bottom: 15px;
+            border-left: 5px solid #007bff;
+            transition: transform 0.2s ease-in-out;
+        }
+        .task-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+        .high-priority {
+            border-left-color: #dc3545;
+        }
+        .medium-priority {
+            border-left-color: #ffc107;
+        }
+        .low-priority {
+            border-left-color: #28a745;
+        }
+        .completed {
+            opacity: 0.6;
+            text-decoration: line-through;
+        }
+        .loader {
+            display: none;
+            border: 5px solid #f3f3f3;
+            border-radius: 50%;
+            border-top: 5px solid #007bff;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .stats-card {
+            background-color: #fff;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .form-container {
+            background-color: #fff;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .navbar {
+            margin-bottom: 20px;
+        }
+        .user-welcome {
+            color: #fff;
+            margin-right: 15px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand" href="/dashboard">Task Recommendation System</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <span class="user-welcome">Welcome, {{ username }}</span>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/logout">Logout</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-10">
+                <h1 class="text-center mb-4">Task Recommendation System</h1>
+                
+                <!-- Task Statistics -->
+                <div class="stats-card">
+                    <h3>Task Statistics</h3>
+                    <div id="task-stats">
+                        {% if task_history is string %}
+                            <p>{{ task_history }}</p>
+                        {% else %}
+                            <ul>
+                                <li>Total Tasks: {{ task_history.total }}</li>
+                                <li>Completed: {{ task_history.completed }}</li>
+                                <li>Pending: {{ task_history.pending }}</li>
+                            </ul>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <!-- Input Form -->
+                <div class="form-container">
+                    <h3>What would you like to work on?</h3>
+                    <form id="query-form">
+                        <div class="mb-3">
+                            <textarea class="form-control" id="query-input" rows="3" placeholder="Describe your goals or what you'd like to accomplish..."></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Get Task Recommendations</button>
+                    </form>
+                    <div class="loader" id="loader"></div>
+                </div>
+                
+                <!-- Results Section -->
+                <div id="results-container" style="display: none;">
+                    <h3>Recommended Tasks</h3>
+                    <div id="tasks-container" class="mb-4"></div>
+                    
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h4>Reasoning</h4>
+                        </div>
+                        <div class="card-body">
+                            <p id="reasoning-text"></p>
+                        </div>
+                    </div>
+                    
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h4>Next Steps</h4>
+                        </div>
+                        <div class="card-body">
+                            <ul id="next-steps-list"></ul>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Existing Tasks Section -->
+                <div class="mt-5">
+                    <h3>Your Current Tasks</h3>
+                    <div id="existing-tasks-container">
+                        {% if tasks %}
+                            {% for task in tasks %}
+                                <div class="card task-card mb-3 {% if task.status == 'completed' %}completed{% endif %} {{ task.priority }}-priority">
+                                    <div class="card-body">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <h5 class="card-title">{{ task.title }}</h5>
+                                            <span class="badge bg-{% if task.priority == 'high' %}danger{% elif task.priority == 'medium' %}warning{% else %}success{% endif %}">
+                                                {{ task.priority }}
+                                            </span>
+                                        </div>
+                                        <p class="card-text">{{ task.description }}</p>
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <small class="text-muted">Duration: {{ task.estimated_duration }}</small>
+                                            {% if task.status != 'completed' %}
+                                                <button class="btn btn-sm btn-outline-success complete-task-btn" data-taskid="{{ task.task_id }}">
+                                                    Mark Completed
+                                                </button>
+                                            {% else %}
+                                                <span class="badge bg-secondary">Completed</span>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        {% else %}
+                            <p>No tasks yet. Get started by entering what you'd like to work on above!</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const queryForm = document.getElementById('query-form');
+            const queryInput = document.getElementById('query-input');
+            const loader = document.getElementById('loader');
+            const resultsContainer = document.getElementById('results-container');
+            const tasksContainer = document.getElementById('tasks-container');
+            const reasoningText = document.getElementById('reasoning-text');
+            const nextStepsList = document.getElementById('next-steps-list');
+            const existingTasksContainer = document.getElementById('existing-tasks-container');
+            
+            // Handle form submission
+            queryForm.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
+                const query = queryInput.value.trim();
+                if (!query) {
+                    alert('Please enter what you would like to work on');
+                    return;
+                }
+                
+                // Show loader
+                loader.style.display = 'block';
+                resultsContainer.style.display = 'none';
+                
+                try {
+                    const formData = new FormData();
+                    formData.append('query', query);
+                    
+                    const response = await fetch('/recommend', {
+                        method: 'POST',
+                        body: formData
+                    });
+                    
+                    if (!response.ok) {
+                        const errorData = await response.json();
+                        throw new Error(errorData.detail || 'Error getting recommendations');
+                    }
+                    
+                    const data = await response.json();
+                    
+                    // Display results
+                    displayResults(data);
+                    
+                    // Refresh the task list
+                    refreshTasks();
+                    
+                } catch (error) {
+                    alert('Error: ' + error.message);
+                } finally {
+                    loader.style.display = 'none';
+                }
+            });
+            
+            // Function to display results
+            function displayResults(data) {
+                tasksContainer.innerHTML = '';
+                reasoningText.textContent = data.reasoning;
+                nextStepsList.innerHTML = '';
+                
+                // Display tasks
+                data.tasks.forEach(task => {
+                    const taskCard = document.createElement('div');
+                    taskCard.className = `card task-card ${task.priority}-priority`;
+                    
+                    taskCard.innerHTML = `
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <h5 class="card-title">${task.title}</h5>
+                                <span class="badge bg-${task.priority === 'high' ? 'danger' : task.priority === 'medium' ? 'warning' : 'success'}">
+                                    ${task.priority}
+                                </span>
+                            </div>
+                            <p class="card-text">${task.description}</p>
+                            <small class="text-muted">Duration: ${task.estimated_duration}</small>
+                            ${task.category ? `<br><small class="text-muted">Category: ${task.category}</small>` : ''}
+                        </div>
+                    `;
+                    
+                    tasksContainer.appendChild(taskCard);
+                });
+                
+                // Display next steps
+                data.next_steps.forEach(step => {
+                    const listItem = document.createElement('li');
+                    listItem.textContent = step;
+                    nextStepsList.appendChild(listItem);
+                });
+                
+                resultsContainer.style.display = 'block';
+            }
+            
+            // Function to refresh the task list
+            async function refreshTasks() {
+                try {
+                    const response = await fetch('/tasks');
+                    const tasks = await response.json();
+                    
+                    existingTasksContainer.innerHTML = '';
+                    
+                    if (tasks.length === 0) {
+                        existingTasksContainer.innerHTML = '<p>No tasks yet. Get started by entering what you\'d like to work on above!</p>';
+                        return;
+                    }
+                    
+                    tasks.forEach(task => {
+                        const taskCard = document.createElement('div');
+                        taskCard.className = `card task-card mb-3 ${task.status === 'completed' ? 'completed' : ''} ${task.priority}-priority`;
+                        
+                        taskCard.innerHTML = `
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <h5 class="card-title">${task.title}</h5>
+                                    <span class="badge bg-${task.priority === 'high' ? 'danger' : task.priority === 'medium' ? 'warning' : 'success'}">
+                                        ${task.priority}
+                                    </span>
+                                </div>
+                                <p class="card-text">${task.description}</p>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <small class="text-muted">Duration: ${task.estimated_duration}</small>
+                                    ${task.status !== 'completed' ? 
+                                        `<button class="btn btn-sm btn-outline-success complete-task-btn" data-taskid="${task.task_id}">
+                                            Mark Completed
+                                        </button>` : 
+                                        '<span class="badge bg-secondary">Completed</span>'
+                                    }
+                                </div>
+                            </div>
+                        `;
+                        
+                        existingTasksContainer.appendChild(taskCard);
+                    });
+                    
+                    // Add event listeners to complete buttons
+                    document.querySelectorAll('.complete-task-btn').forEach(button => {
+                        button.addEventListener('click', completeTask);
+                    });
+                    
+                    // Update task statistics
+                    updateTaskStats();
+                    
+                } catch (error) {
+                    console.error('Error refreshing tasks:', error);
+                }
+            }
+            
+            // Function to complete a task
+            async function completeTask() {
+                const taskId = this.getAttribute('data-taskid');
+                
+                try {
+                    const response = await fetch(`/complete-task/${taskId}`, {
+                        method: 'POST'
+                    });
+                    
+                    if (!response.ok) {
+                        const errorData = await response.json();
+                        throw new Error(errorData.detail || 'Error completing task');
+                    }
+                    
+                    // Refresh tasks after completion
+                    refreshTasks();
+                    
+                } catch (error) {
+                    alert('Error: ' + error.message);
+                }
+            }
+            
+            // Function to update task statistics
+            async function updateTaskStats() {
+                try {
+                    const response = await fetch('/tasks');
+                    const tasks = await response.json();
+                    
+                    const completed = tasks.filter(t => t.status === 'completed').length;
+                    const pending = tasks.filter(t => t.status === 'pending').length;
+                    
+                    const statsHtml = `
+                        <ul>
+                            <li>Total Tasks: ${tasks.length}</li>
+                            <li>Completed: ${completed}</li>
+                            <li>Pending: ${pending}</li>
+                        </ul>
+                    `;
+                    
+                    document.getElementById('task-stats').innerHTML = statsHtml;
+                    
+                } catch (error) {
+                    console.error('Error updating task stats:', error);
+                }
+            }
+            
+            // Add event listeners to complete buttons
+            document.querySelectorAll('.complete-task-btn').forEach(button => {
+                button.addEventListener('click', completeTask);
+            });
+        });
+    </script>
+</body>
+</html> 

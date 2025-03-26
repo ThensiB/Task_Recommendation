@@ -1,0 +1,14 @@
+[
+  {
+    "username": "gavi",
+    "password": "$2b$12$oZNl866b1oMmfjoubOH0J.n2LWPKIY7AdnzT3KkBKMEWpb7D6Eig2",
+    "email": "123gavi@gmail.com",
+    "created_at": "2025-03-26T16:11:17.301304"
+  },
+  {
+    "username": "giva",
+    "password": "$2b$12$uw95gwXa96IU173pmDRp4eTJcAmNoYM4iaDmzdDAmBCcj21jGH3dW",
+    "email": "123giva@gmail.com",
+    "created_at": "2025-03-26T16:36:09.489920"
+  }
+]

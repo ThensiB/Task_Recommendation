@@ -1,0 +1,174 @@
+[
+  {
+    "title": "Study AI Basics",
+    "description": "Begin understanding the principles of Artificial Intelligence (AI).",
+    "priority": "High",
+    "estimated_duration": "1 hour",
+    "status": "completed",
+    "category": "Learning"
+  },
+  {
+    "title": "Practice Python",
+    "description": "Continue building familiarity with Python, which is commonly used in AI development.",
+    "priority": "High",
+    "estimated_duration": "2 hours",
+    "status": "completed",
+    "category": "Learning"
+  },
+  {
+    "title": "Apply AI Concepts",
+    "description": "Find a practical project where you can apply the AI principles and Python programming.",
+    "priority": "Medium",
+    "estimated_duration": "A few weeks",
+    "status": "completed",
+    "category": "Project"
+  },
+  {
+    "title": "Document Learning Journey",
+    "description": "Document your learning journey for future reference and sharing with others, this can also help to reinforce what you have learned.",
+    "priority": "Low",
+    "estimated_duration": "1 hour/week",
+    "status": "completed",
+    "category": "Documentation"
+  },
+  {
+    "title": "Create a Meal Plan",
+    "description": "Plan your meals for the next three weeks focusing on whole foods and portion control",
+    "priority": "High",
+    "estimated_duration": "2 hours",
+    "status": "pending",
+    "category": null
+  },
+  {
+    "title": "Exercise Regularly",
+    "description": "Create a fitness regime that includes cardio and strength training. Exercise for at least 30 minutes every day",
+    "priority": "High",
+    "estimated_duration": "30 minutes per day",
+    "status": "pending",
+    "category": null
+  },
+  {
+    "title": "Drink More Water",
+    "description": "Aim to drink at least eight glasses of water per day",
+    "priority": "Medium",
+    "estimated_duration": "Continuous",
+    "status": "pending",
+    "category": null
+  },
+  {
+    "title": "Get Adequate Sleep",
+    "description": "Aim for at least 7-9 hours of sleep each night",
+    "priority": "Medium",
+    "estimated_duration": "7-9 hours per night",
+    "status": "pending",
+    "category": null
+  },
+  {
+    "title": "Track Your Progress",
+    "description": "Use a health app or journal to keep track of your food intake, exercise, and weight changes",
+    "priority": "Low",
+    "estimated_duration": "15 minutes per day",
+    "status": "pending",
+    "category": null
+  },
+  {
+    "task_id": "3af5cbcc-9cb6-473c-98ba-70a9bfb8f747",
+    "username": "gavi",
+    "title": "Review Task",
+    "description": "Please review your input and try again",
+    "priority": "medium",
+    "estimated_duration": "10 minutes",
+    "status": "completed",
+    "category": null,
+    "created_at": "2025-03-26T16:25:04.331082",
+    "updated_at": "2025-03-26T16:35:19.273402"
+  },
+  {
+    "task_id": "7f85daa4-4b5b-40be-8e7c-a1167e496eac",
+    "username": "gavi",
+    "title": "Create a Healthy Meal Plan",
+    "description": "Research and prepare a weekly meal plan filled with nutritious, low calorie foods",
+    "priority": "high",
+    "estimated_duration": "3 hours",
+    "status": "pending",
+    "category": "Health",
+    "created_at": "2025-03-26T16:35:00.032425"
+  },
+  {
+    "task_id": "de59274e-62dc-42e3-b765-18d1ac3e10ef",
+    "username": "gavi",
+    "title": "Daily Exercise",
+    "description": "Implement a daily 30 to 60-minute workout routine for cardio and strength training",
+    "priority": "high",
+    "estimated_duration": "30 - 60 minutes",
+    "status": "pending",
+    "category": "Health",
+    "created_at": "2025-03-26T16:35:00.032425"
+  },
+  {
+    "task_id": "9ad1ffc4-58ed-4e00-a2c4-172f3b2bed72",
+    "username": "gavi",
+    "title": "Sleep Regulation",
+    "description": "Aim for at least 7-8 hours of sleep per night",
+    "priority": "medium",
+    "estimated_duration": "7 - 8 hours",
+    "status": "pending",
+    "category": "Health",
+    "created_at": "2025-03-26T16:35:00.032425"
+  },
+  {
+    "task_id": "5354ecac-6ee9-4ecd-a873-7529323da73c",
+    "username": "giva",
+    "title": "Study Basic Concepts",
+    "description": "Begin by understanding the fundamentals of AI. This includes machine learning, deep learning, neural networks, etc.",
+    "priority": "high",
+    "estimated_duration": "30 days",
+    "status": "pending",
+    "category": "Learning",
+    "created_at": "2025-03-26T16:36:59.160906"
+  },
+  {
+    "task_id": "c959f868-9e77-41b1-9117-bac8d79a173c",
+    "username": "giva",
+    "title": "Join an Online Course",
+    "description": "Find a comprehensive online course that aligns with your learning objectives. Consider platforms like Coursera, Udemy, or edX.",
+    "priority": "medium",
+    "estimated_duration": "90 days",
+    "status": "pending",
+    "category": "Learning",
+    "created_at": "2025-03-26T16:36:59.160906"
+  },
+  {
+    "task_id": "16c05806-72d9-4935-8779-fdf8981e82b1",
+    "username": "giva",
+    "title": "Practice Coding",
+    "description": "Coding is a significant part of AI. Familiarise yourself with languages such as Python and practice regularly.",
+    "priority": "high",
+    "estimated_duration": "ongoing",
+    "status": "pending",
+    "category": "Skill Development",
+    "created_at": "2025-03-26T16:36:59.160906"
+  },
+  {
+    "task_id": "79bb1a24-b59b-4aa8-8bb0-7e0a4c75b2e8",
+    "username": "giva",
+    "title": "Work on a Project",
+    "description": "Apply what you have learned by taking on a project. This will also give you a clearer understanding of how to use AI in practical situations.",
+    "priority": "medium",
+    "estimated_duration": "60 days",
+    "status": "pending",
+    "category": "Skill Development",
+    "created_at": "2025-03-26T16:36:59.160906"
+  },
+  {
+    "task_id": "c25b6000-95f6-457d-b870-e9368f2dcd90",
+    "username": "giva",
+    "title": "Keep up with Industry Updates",
+    "description": "Artificial intelligence is constantly evolving, and it\u2019s important to stay updated so that you can remain competitive in the field.",
+    "priority": "low",
+    "estimated_duration": "ongoing",
+    "status": "pending",
+    "category": "Career Building",
+    "created_at": "2025-03-26T16:36:59.160906"
+  }
+]

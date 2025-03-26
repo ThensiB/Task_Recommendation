@@ -1,0 +1,15 @@
+langchain
+wikipedia
+langchain-community
+langchain-openai
+langchain-anthropic
+python-dotenv
+pydantic
+fastapi
+duckduckgo-search
+uvicorn
+jinja2
+python-multipart
+boto3
+python-jose[cryptography]
+passlib[bcrypt]

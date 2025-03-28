@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Task Recommendation System</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <link href="/static/styles.css" rel="stylesheet">
     <style>
         body {
@@ -68,23 +69,64 @@
             color: #fff;
             margin-right: 15px;
         }
+        .quote-container {
+            background-color: #fff;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            border-left: 5px solid #6f42c1;
+        }
+        .quote-text {
+            font-style: italic;
+            font-size: 1.1rem;
+            color: #495057;
+            margin-bottom: 8px;
+            transition: opacity 0.3s ease-in-out;
+        }
+        .quote-author {
+            font-weight: 600;
+            text-align: right;
+            color: #6c757d;
+            transition: opacity 0.3s ease-in-out;
+        }
+        /* Animation for the refresh button */
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        #refresh-quote:hover {
+            animation: pulse 1s infinite;
+        }
     </style>
 </head>
 <body>
     <!-- Navigation Bar -->
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
         <div class="container">
-            <a class="navbar-brand" href="/dashboard">Task Recommendation System</a>
+            <a class="navbar-brand" href="/dashboard">Task Management</a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/tasks"><i class="bi bi-list-check"></i> Tasks</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/tasks#calendar"><i class="bi bi-calendar3"></i> Calendar</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/profile"><i class="bi bi-person"></i> Profile</a>
+                    </li>
+                </ul>
                 <ul class="navbar-nav ms-auto">
                     <li class="nav-item">
                         <span class="user-welcome">Welcome, {{ username }}</span>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="/logout">Logout</a>
+                        <a class="nav-link" href="/logout"><i class="bi bi-box-arrow-right"></i> Logout</a>
                     </li>
                 </ul>
             </div>
@@ -94,92 +136,329 @@
     <div class="container">
         <div class="row justify-content-center">
             <div class="col-md-10">
-                <h1 class="text-center mb-4">Task Recommendation System</h1>
-                
-                <!-- Task Statistics -->
-                <div class="stats-card">
-                    <h3>Task Statistics</h3>
-                    <div id="task-stats">
-                        {% if task_history is string %}
-                            <p>{{ task_history }}</p>
-                        {% else %}
-                            <ul>
-                                <li>Total Tasks: {{ task_history.total }}</li>
-                                <li>Completed: {{ task_history.completed }}</li>
-                                <li>Pending: {{ task_history.pending }}</li>
-                            </ul>
-                        {% endif %}
+                <!-- Daily Quote -->
+                <div class="quote-container">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <h4><i class="bi bi-quote"></i> Daily Inspiration</h4>
+                        <button id="refresh-quote" class="btn btn-sm btn-outline-secondary">
+                            <i class="bi bi-arrow-clockwise"></i> New Quote
+                        </button>
                     </div>
+                    <p class="quote-text" id="quote-text">"{{ daily_quote.quote }}"</p>
+                    <p class="quote-author" id="quote-author">— {{ daily_quote.author }}</p>
                 </div>
                 
-                <!-- Input Form -->
-                <div class="form-container">
-                    <h3>What would you like to work on?</h3>
-                    <form id="query-form">
-                        <div class="mb-3">
-                            <textarea class="form-control" id="query-input" rows="3" placeholder="Describe your goals or what you'd like to accomplish..."></textarea>
-                        </div>
-                        <button type="submit" class="btn btn-primary">Get Task Recommendations</button>
-                    </form>
-                    <div class="loader" id="loader"></div>
-                </div>
-                
-                <!-- Results Section -->
-                <div id="results-container" style="display: none;">
-                    <h3>Recommended Tasks</h3>
-                    <div id="tasks-container" class="mb-4"></div>
-                    
+                <!-- Motivational Advice Section -->
+                <div class="motivation-card">
                     <div class="card mb-4">
-                        <div class="card-header">
-                            <h4>Reasoning</h4>
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h4><i class="bi bi-lightbulb"></i> Your Motivation Agent</h4>
+                            <button id="refresh-motivation" class="btn btn-sm btn-outline-primary">
+                                <i class="bi bi-arrow-clockwise"></i> Refresh
+                            </button>
                         </div>
                         <div class="card-body">
-                            <p id="reasoning-text"></p>
-                        </div>
-                    </div>
-                    
-                    <div class="card mb-4">
-                        <div class="card-header">
-                            <h4>Next Steps</h4>
-                        </div>
-                        <div class="card-body">
-                            <ul id="next-steps-list"></ul>
+                            <div id="motivation-content">
+                                <!-- Content will be loaded via JavaScript -->
+                                <div class="text-center py-4">
+                                    <div class="spinner-border text-primary" role="status">
+                                        <span class="visually-hidden">Loading...</span>
+                                    </div>
+                                    <p class="mt-2">Generating personalized advice...</p>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
                 
-                <!-- Existing Tasks Section -->
-                <div class="mt-5">
-                    <h3>Your Current Tasks</h3>
-                    <div id="existing-tasks-container">
-                        {% if tasks %}
-                            {% for task in tasks %}
-                                <div class="card task-card mb-3 {% if task.status == 'completed' %}completed{% endif %} {{ task.priority }}-priority">
-                                    <div class="card-body">
-                                        <div class="d-flex justify-content-between align-items-center">
-                                            <h5 class="card-title">{{ task.title }}</h5>
-                                            <span class="badge bg-{% if task.priority == 'high' %}danger{% elif task.priority == 'medium' %}warning{% else %}success{% endif %}">
-                                                {{ task.priority }}
-                                            </span>
-                                        </div>
-                                        <p class="card-text">{{ task.description }}</p>
-                                        <div class="d-flex justify-content-between align-items-center">
-                                            <small class="text-muted">Duration: {{ task.estimated_duration }}</small>
-                                            {% if task.status != 'completed' %}
-                                                <button class="btn btn-sm btn-outline-success complete-task-btn" data-taskid="{{ task.task_id }}">
-                                                    Mark Completed
-                                                </button>
-                                            {% else %}
-                                                <span class="badge bg-secondary">Completed</span>
-                                            {% endif %}
-                                        </div>
+                <!-- Feedback Container -->
+                <div class="feedback-container mb-4">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h3><i class="bi bi-stars"></i> Personal Achievement Journal</h3>
+                        <button id="refresh-feedback" class="btn btn-sm btn-outline-success">
+                            <i class="bi bi-arrow-clockwise"></i> Refresh Feedback
+                        </button>
+                    </div>
+                    <div id="feedback-content">
+                        <!-- This content will be loaded via JavaScript -->
+                        <div class="text-center py-4">
+                            <div class="spinner-border text-success" role="status">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+                            <p class="mt-2">Analyzing your progress...</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- TASKS SECTION -->
+                <div id="tasks-section" class="content-section active">
+                    <h1 class="text-center mb-4">Task Management</h1>
+                    
+                    <!-- Task Statistics -->
+                    <div class="stats-card">
+                        <h3>Task Statistics</h3>
+                        <div id="task-stats">
+                            {% if task_history is string %}
+                                <p>{{ task_history }}</p>
+                            {% else %}
+                                <ul>
+                                    <li>Total Tasks: {{ task_history.total }}</li>
+                                    <li>Completed: {{ task_history.completed }}</li>
+                                    <li>Pending: {{ task_history.pending }}</li>
+                                </ul>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <!-- Task Tools -->
+                    <div class="form-container">
+                        <div class="task-tools mb-3">
+                            <button class="btn btn-success" id="add-task-btn"><i class="bi bi-plus-circle"></i> Add Task</button>
+                            <button class="btn btn-primary" id="prioritize-tasks-btn"><i class="bi bi-sort-numeric-down"></i> Prioritize</button>
+                            <button class="btn btn-info" id="manual-prioritize-btn"><i class="bi bi-sliders"></i> Manual Prioritize</button>
+                        </div>
+                        
+                        <!-- Add Task Form (hidden by default) -->
+                        <div id="add-task-form" style="display: none;">
+                            <h4>Add New Task</h4>
+                            <form id="manual-task-form">
+                                <div class="mb-3">
+                                    <label for="task-title" class="form-label">Title</label>
+                                    <input type="text" class="form-control" id="task-title" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="task-description" class="form-label">Description</label>
+                                    <textarea class="form-control" id="task-description" rows="2" required></textarea>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="task-priority" class="form-label">Priority</label>
+                                        <select class="form-control" id="task-priority">
+                                            <option value="high">High</option>
+                                            <option value="medium" selected>Medium</option>
+                                            <option value="low">Low</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="task-duration" class="form-label">Estimated Duration</label>
+                                        <input type="text" class="form-control" id="task-duration" placeholder="e.g. 30 minutes" required>
                                     </div>
                                 </div>
-                            {% endfor %}
-                        {% else %}
-                            <p>No tasks yet. Get started by entering what you'd like to work on above!</p>
-                        {% endif %}
+                                <div class="mb-3">
+                                    <label for="task-category" class="form-label">Category (optional)</label>
+                                    <input type="text" class="form-control" id="task-category">
+                                </div>
+                                <button type="submit" class="btn btn-primary">Save Task</button>
+                                <button type="button" class="btn btn-secondary" id="cancel-add-task">Cancel</button>
+                            </form>
+                        </div>
                     </div>
+                    
+                    <!-- AI Recommendation Form -->
+                    <div class="form-container">
+                        <h3>Get AI Task Recommendations</h3>
+                        <form id="query-form">
+                            <div class="mb-3">
+                                <textarea class="form-control" id="query-input" rows="3" placeholder="Describe your goals or what you'd like to accomplish..."></textarea>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Get Task Recommendations</button>
+                        </form>
+                        <div class="loader" id="loader"></div>
+                    </div>
+                    
+                    <!-- Results Section -->
+                    <div id="results-container" style="display: none;">
+                        <h3>Recommended Tasks</h3>
+                        <div id="tasks-container" class="mb-4"></div>
+                        
+                        <div class="card mb-4">
+                            <div class="card-header">
+                                <h4>Reasoning</h4>
+                            </div>
+                            <div class="card-body">
+                                <p id="reasoning-text"></p>
+                            </div>
+                        </div>
+                        
+                        <div class="card mb-4">
+                            <div class="card-header">
+                                <h4>Next Steps</h4>
+                            </div>
+                            <div class="card-body">
+                                <ul id="next-steps-list"></ul>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Existing Tasks Section -->
+                    <div class="mt-5">
+                        <h3>Your Current Tasks</h3>
+                        <div id="existing-tasks-container">
+                            {% if tasks %}
+                                {% for task in tasks %}
+                                    <div class="card task-card mb-3 {% if task.status == 'completed' %}completed{% endif %} {{ task.priority }}-priority" data-taskid="{{ task.task_id }}">
+                                        <div class="card-body">
+                                            <div class="d-flex justify-content-between align-items-center">
+                                                <h5 class="card-title">{{ task.title }}</h5>
+                                                <span class="badge bg-{% if task.priority == 'high' %}danger{% elif task.priority == 'medium' %}warning{% else %}success{% endif %}">
+                                                    {{ task.priority }}
+                                                </span>
+                                            </div>
+                                            <p class="card-text">{{ task.description }}</p>
+                                            <div class="d-flex justify-content-between align-items-center">
+                                                <small class="text-muted">Duration: {{ task.estimated_duration }}</small>
+                                                <div class="task-actions">
+                                                    {% if task.status != 'completed' %}
+                                                        <button class="btn btn-sm btn-outline-primary edit-task-btn" data-taskid="{{ task.task_id }}">
+                                                            <i class="bi bi-pencil"></i> Edit
+                                                        </button>
+                                                        <button class="btn btn-sm btn-outline-success complete-task-btn" data-taskid="{{ task.task_id }}">
+                                                            <i class="bi bi-check-circle"></i> Complete
+                                                        </button>
+                                                        <button class="btn btn-sm btn-outline-danger delete-task-btn" data-taskid="{{ task.task_id }}">
+                                                            <i class="bi bi-trash"></i> Delete
+                                                        </button>
+                                                    {% else %}
+                                                        <span class="badge bg-secondary">Completed</span>
+                                                        <button class="btn btn-sm btn-outline-danger delete-task-btn" data-taskid="{{ task.task_id }}">
+                                                            <i class="bi bi-trash"></i> Delete
+                                                        </button>
+                                                    {% endif %}
+                                                </div>
+                                            </div>
+                                            
+                                            <!-- Edit Form (initially hidden) -->
+                                            <div class="edit-task-form" id="edit-form-{{ task.task_id }}">
+                                                <form class="task-edit-form" data-taskid="{{ task.task_id }}">
+                                                    <div class="mb-3">
+                                                        <label class="form-label">Title</label>
+                                                        <input type="text" class="form-control edit-title" value="{{ task.title }}" required>
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <label class="form-label">Description</label>
+                                                        <textarea class="form-control edit-description" rows="2" required>{{ task.description }}</textarea>
+                                                    </div>
+                                                    <div class="row">
+                                                        <div class="col-md-6 mb-3">
+                                                            <label class="form-label">Priority</label>
+                                                            <select class="form-control edit-priority">
+                                                                <option value="high" {% if task.priority == 'high' %}selected{% endif %}>High</option>
+                                                                <option value="medium" {% if task.priority == 'medium' %}selected{% endif %}>Medium</option>
+                                                                <option value="low" {% if task.priority == 'low' %}selected{% endif %}>Low</option>
+                                                            </select>
+                                                        </div>
+                                                        <div class="col-md-6 mb-3">
+                                                            <label class="form-label">Estimated Duration</label>
+                                                            <input type="text" class="form-control edit-duration" value="{{ task.estimated_duration }}" required>
+                                                        </div>
+                                                    </div>
+                                                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                                                    <button type="button" class="btn btn-secondary cancel-edit">Cancel</button>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            {% else %}
+                                <p>No tasks yet. Add a task or get AI recommendations to get started!</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- CALENDAR SECTION -->
+                <div id="calendar-section" class="content-section">
+                    <h1 class="text-center mb-4">Task Calendar</h1>
+                    <div class="calendar-container">
+                        <p class="text-center">Calendar view will be implemented in a future update.</p>
+                        <p class="text-center">This section will allow you to view your tasks in a calendar format and schedule them accordingly.</p>
+                    </div>
+                </div>
+                
+                <!-- PROFILE SECTION -->
+                <div id="profile-section" class="content-section">
+                    <h1 class="text-center mb-4">Your Profile</h1>
+                    <div class="profile-container">
+                        <div class="row">
+                            <div class="col-md-4 text-center">
+                                <div class="mb-3">
+                                    <i class="bi bi-person-circle" style="font-size: 5rem;"></i>
+                                </div>
+                                <h3>{{ username }}</h3>
+                            </div>
+                            <div class="col-md-8">
+                                <h4>Account Information</h4>
+                                <p><strong>Username:</strong> {{ username }}</p>
+                                <p><strong>Task Stats:</strong></p>
+                                <ul>
+                                    {% if task_history is string %}
+                                        <li>{{ task_history }}</li>
+                                    {% else %}
+                                        <li>Total Tasks: {{ task_history.total }}</li>
+                                        <li>Completed: {{ task_history.completed }}</li>
+                                        <li>Pending: {{ task_history.pending }}</li>
+                                    {% endif %}
+                                </ul>
+                                <p>Profile settings and additional features will be implemented in a future update.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Features Overview -->
+                <div class="row mt-5">
+                    <div class="col-md-4">
+                        <div class="feature-card">
+                            <div class="feature-icon">
+                                <i class="bi bi-lightning"></i>
+                            </div>
+                            <h3 class="feature-title">AI Recommendations</h3>
+                            <p>Get personalized task recommendations based on your goals</p>
+                            <a href="/tasks" class="btn btn-primary mt-2">Try It Now</a>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="feature-card">
+                            <div class="feature-icon">
+                                <i class="bi bi-check2-square"></i>
+                            </div>
+                            <h3 class="feature-title">Task Management</h3>
+                            <p>Create, organize, and prioritize your tasks efficiently</p>
+                            <a href="/tasks" class="btn btn-primary mt-2">Manage Tasks</a>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="feature-card">
+                            <div class="feature-icon">
+                                <i class="bi bi-graph-up"></i>
+                            </div>
+                            <h3 class="feature-title">Progress Tracking</h3>
+                            <p>Monitor your completion rate and task statistics</p>
+                            <a href="/profile" class="btn btn-primary mt-2">View Progress</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Prioritize Modal -->
+    <div class="modal fade" id="prioritize-modal" tabindex="-1" aria-labelledby="prioritize-modal-label" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="prioritize-modal-label">Edit Task Priorities</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Set priorities for your pending tasks:</p>
+                    <div id="priority-list-container">
+                        <!-- Task priority list will be populated here -->
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" id="save-priorities-btn">Save Priorities</button>
                 </div>
             </div>
         </div>
@@ -188,6 +467,19 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+            // Navigation elements
+            const navLinks = document.querySelectorAll('#navbarNav .nav-link');
+            const contentSections = document.querySelectorAll('.content-section');
+            const tasksSection = document.getElementById('tasks-section');
+            const calendarSection = document.getElementById('calendar-section');
+            const profileSection = document.getElementById('profile-section');
+            
+            // Quote elements
+            const refreshQuoteBtn = document.getElementById('refresh-quote');
+            const quoteText = document.getElementById('quote-text');
+            const quoteAuthor = document.getElementById('quote-author');
+            
+            // Task handling elements
             const queryForm = document.getElementById('query-form');
             const queryInput = document.getElementById('query-input');
             const loader = document.getElementById('loader');
@@ -197,7 +489,94 @@
             const nextStepsList = document.getElementById('next-steps-list');
             const existingTasksContainer = document.getElementById('existing-tasks-container');
             
-            // Handle form submission
+            // Task management buttons
+            const addTaskBtn = document.getElementById('add-task-btn');
+            const cancelAddTaskBtn = document.getElementById('cancel-add-task');
+            const addTaskForm = document.getElementById('add-task-form');
+            const manualTaskForm = document.getElementById('manual-task-form');
+            const prioritizeTasksBtn = document.getElementById('prioritize-tasks-btn');
+            const manualPrioritizeBtn = document.getElementById('manual-prioritize-btn');
+            
+            // Prioritize modal elements
+            const prioritizeModal = new bootstrap.Modal(document.getElementById('prioritize-modal'));
+            const priorityListContainer = document.getElementById('priority-list-container');
+            const savePrioritiesBtn = document.getElementById('save-priorities-btn');
+            
+            // Navigation handling
+            navLinks.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    
+                    // Update active navigation item
+                    navLinks.forEach(l => l.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    // Show the appropriate section
+                    contentSections.forEach(section => section.classList.remove('active'));
+                    
+                    if (this.id === 'nav-tasks') {
+                        tasksSection.classList.add('active');
+                    } else if (this.id === 'nav-calendar') {
+                        calendarSection.classList.add('active');
+                    } else if (this.id === 'nav-profile') {
+                        profileSection.classList.add('active');
+                    }
+                });
+            });
+            
+            // Add task button handling
+            addTaskBtn.addEventListener('click', function() {
+                addTaskForm.style.display = 'block';
+                this.style.display = 'none';
+            });
+            
+            cancelAddTaskBtn.addEventListener('click', function() {
+                addTaskForm.style.display = 'none';
+                addTaskBtn.style.display = 'inline-block';
+                manualTaskForm.reset();
+            });
+            
+            // Manual task form submission
+            manualTaskForm.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
+                const taskData = {
+                    title: document.getElementById('task-title').value,
+                    description: document.getElementById('task-description').value,
+                    priority: document.getElementById('task-priority').value,
+                    estimated_duration: document.getElementById('task-duration').value,
+                    category: document.getElementById('task-category').value || '',
+                    status: 'pending'
+                };
+                
+                try {
+                    const response = await fetch('/tasks', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(taskData)
+                    });
+                    
+                    if (!response.ok) {
+                        const errorData = await response.json();
+                        throw new Error(errorData.detail || 'Error creating task');
+                    }
+                    
+                    // Reset form and hide it
+                    manualTaskForm.reset();
+                    addTaskForm.style.display = 'none';
+                    addTaskBtn.style.display = 'inline-block';
+                    
+                    // Refresh the task list
+                    refreshTasks();
+                    
+                } catch (error) {
+                    alert('Error: ' + error.message);
+                }
+            });
+            
+            // AI Recommendation form submission
             queryForm.addEventListener('submit', async function(e) {
                 e.preventDefault();
                 
@@ -287,13 +666,14 @@
                     existingTasksContainer.innerHTML = '';
                     
                     if (tasks.length === 0) {
-                        existingTasksContainer.innerHTML = '<p>No tasks yet. Get started by entering what you\'d like to work on above!</p>';
+                        existingTasksContainer.innerHTML = '<p>No tasks yet. Add a task or get AI recommendations to get started!</p>';
                         return;
                     }
                     
                     tasks.forEach(task => {
                         const taskCard = document.createElement('div');
                         taskCard.className = `card task-card mb-3 ${task.status === 'completed' ? 'completed' : ''} ${task.priority}-priority`;
+                        taskCard.setAttribute('data-taskid', task.task_id);
                         
                         taskCard.innerHTML = `
                             <div class="card-body">
@@ -306,12 +686,54 @@
                                 <p class="card-text">${task.description}</p>
                                 <div class="d-flex justify-content-between align-items-center">
                                     <small class="text-muted">Duration: ${task.estimated_duration}</small>
-                                    ${task.status !== 'completed' ? 
-                                        `<button class="btn btn-sm btn-outline-success complete-task-btn" data-taskid="${task.task_id}">
-                                            Mark Completed
-                                        </button>` : 
-                                        '<span class="badge bg-secondary">Completed</span>'
-                                    }
+                                    <div class="task-actions">
+                                        ${task.status !== 'completed' ? `
+                                            <button class="btn btn-sm btn-outline-primary edit-task-btn" data-taskid="${task.task_id}">
+                                                <i class="bi bi-pencil"></i> Edit
+                                            </button>
+                                            <button class="btn btn-sm btn-outline-success complete-task-btn" data-taskid="${task.task_id}">
+                                                <i class="bi bi-check-circle"></i> Complete
+                                            </button>
+                                            <button class="btn btn-sm btn-outline-danger delete-task-btn" data-taskid="${task.task_id}">
+                                                <i class="bi bi-trash"></i> Delete
+                                            </button>
+                                        ` : `
+                                            <span class="badge bg-secondary">Completed</span>
+                                            <button class="btn btn-sm btn-outline-danger delete-task-btn" data-taskid="${task.task_id}">
+                                                <i class="bi bi-trash"></i> Delete
+                                            </button>
+                                        `}
+                                    </div>
+                                </div>
+                                
+                                <!-- Edit Form (hidden by default) -->
+                                <div class="edit-task-form" id="edit-form-${task.task_id}">
+                                    <form class="task-edit-form" data-taskid="${task.task_id}">
+                                        <div class="mb-3">
+                                            <label class="form-label">Title</label>
+                                            <input type="text" class="form-control edit-title" value="${task.title}" required>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label">Description</label>
+                                            <textarea class="form-control edit-description" rows="2" required>${task.description}</textarea>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-6 mb-3">
+                                                <label class="form-label">Priority</label>
+                                                <select class="form-control edit-priority">
+                                                    <option value="high" ${task.priority === 'high' ? 'selected' : ''}>High</option>
+                                                    <option value="medium" ${task.priority === 'medium' ? 'selected' : ''}>Medium</option>
+                                                    <option value="low" ${task.priority === 'low' ? 'selected' : ''}>Low</option>
+                                                </select>
+                                            </div>
+                                            <div class="col-md-6 mb-3">
+                                                <label class="form-label">Estimated Duration</label>
+                                                <input type="text" class="form-control edit-duration" value="${task.estimated_duration}" required>
+                                            </div>
+                                        </div>
+                                        <button type="submit" class="btn btn-primary">Save Changes</button>
+                                        <button type="button" class="btn btn-secondary cancel-edit">Cancel</button>
+                                    </form>
                                 </div>
                             </div>
                         `;
@@ -319,10 +741,8 @@
                         existingTasksContainer.appendChild(taskCard);
                     });
                     
-                    // Add event listeners to complete buttons
-                    document.querySelectorAll('.complete-task-btn').forEach(button => {
-                        button.addEventListener('click', completeTask);
-                    });
+                    // Add event listeners to task buttons
+                    addTaskEventListeners();
                     
                     // Update task statistics
                     updateTaskStats();
@@ -330,6 +750,41 @@
                 } catch (error) {
                     console.error('Error refreshing tasks:', error);
                 }
+            }
+            
+            // Function to add event listeners to task buttons
+            function addTaskEventListeners() {
+                // Complete task buttons
+                document.querySelectorAll('.complete-task-btn').forEach(button => {
+                    button.addEventListener('click', completeTask);
+                });
+                
+                // Edit task buttons
+                document.querySelectorAll('.edit-task-btn').forEach(button => {
+                    button.addEventListener('click', function() {
+                        const taskId = this.getAttribute('data-taskid');
+                        const editForm = document.getElementById(`edit-form-${taskId}`);
+                        editForm.style.display = 'block';
+                    });
+                });
+                
+                // Cancel edit buttons
+                document.querySelectorAll('.cancel-edit').forEach(button => {
+                    button.addEventListener('click', function() {
+                        const form = this.closest('.edit-task-form');
+                        form.style.display = 'none';
+                    });
+                });
+                
+                // Edit form submission
+                document.querySelectorAll('.task-edit-form').forEach(form => {
+                    form.addEventListener('submit', updateTask);
+                });
+                
+                // Delete task buttons
+                document.querySelectorAll('.delete-task-btn').forEach(button => {
+                    button.addEventListener('click', deleteTask);
+                });
             }
             
             // Function to complete a task
@@ -353,6 +808,169 @@
                     alert('Error: ' + error.message);
                 }
             }
+            
+            // Function to update a task
+            async function updateTask(e) {
+                e.preventDefault();
+                
+                const taskId = this.getAttribute('data-taskid');
+                const titleInput = this.querySelector('.edit-title');
+                const descriptionInput = this.querySelector('.edit-description');
+                const prioritySelect = this.querySelector('.edit-priority');
+                const durationInput = this.querySelector('.edit-duration');
+                
+                const taskData = {
+                    task_id: taskId,
+                    title: titleInput.value,
+                    description: descriptionInput.value,
+                    priority: prioritySelect.value,
+                    estimated_duration: durationInput.value,
+                };
+                
+                try {
+                    const response = await fetch(`/update-task/${taskId}`, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(taskData)
+                    });
+                    
+                    if (!response.ok) {
+                        const errorData = await response.json();
+                        throw new Error(errorData.detail || 'Error updating task');
+                    }
+                    
+                    // Hide the edit form and refresh tasks
+                    this.closest('.edit-task-form').style.display = 'none';
+                    refreshTasks();
+                    
+                } catch (error) {
+                    alert('Error: ' + error.message);
+                }
+            }
+            
+            // Function to delete a task
+            async function deleteTask() {
+                if (!confirm('Are you sure you want to delete this task?')) {
+                    return;
+                }
+                
+                const taskId = this.getAttribute('data-taskid');
+                
+                try {
+                    const response = await fetch(`/delete-task/${taskId}`, {
+                        method: 'DELETE'
+                    });
+                    
+                    if (!response.ok) {
+                        const errorData = await response.json();
+                        throw new Error(errorData.detail || 'Error deleting task');
+                    }
+                    
+                    // Refresh tasks after deletion
+                    refreshTasks();
+                    
+                } catch (error) {
+                    alert('Error: ' + error.message);
+                }
+            }
+            
+            // Function to prioritize tasks
+            prioritizeTasksBtn.addEventListener('click', async function() {
+                try {
+                    const response = await fetch('/prioritize-tasks', {
+                        method: 'POST'
+                    });
+                    
+                    if (!response.ok) {
+                        const errorData = await response.json();
+                        throw new Error(errorData.detail || 'Error prioritizing tasks');
+                    }
+                    
+                    // Refresh tasks after prioritization
+                    refreshTasks();
+                    
+                } catch (error) {
+                    alert('Error: ' + error.message);
+                }
+            });
+            
+            // Manual prioritize button handler
+            manualPrioritizeBtn.addEventListener('click', async function() {
+                try {
+                    const response = await fetch('/tasks');
+                    const tasks = await response.json();
+                    
+                    // Filter for only pending tasks
+                    const pendingTasks = tasks.filter(task => task.status === 'pending');
+                    
+                    if (pendingTasks.length === 0) {
+                        alert('No pending tasks to prioritize');
+                        return;
+                    }
+                    
+                    // Populate the priority list
+                    priorityListContainer.innerHTML = '';
+                    pendingTasks.forEach(task => {
+                        const taskItem = document.createElement('div');
+                        taskItem.className = 'task-priority-item mb-3 p-2 border-bottom';
+                        taskItem.innerHTML = `
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <strong>${task.title}</strong>
+                                    <p class="mb-0 text-muted small">${task.description.substring(0, 100)}${task.description.length > 100 ? '...' : ''}</p>
+                                </div>
+                                <select class="form-select form-select-sm priority-select" style="width: 120px;" data-taskid="${task.task_id}">
+                                    <option value="high" ${task.priority === 'high' ? 'selected' : ''}>High</option>
+                                    <option value="medium" ${task.priority === 'medium' ? 'selected' : ''}>Medium</option>
+                                    <option value="low" ${task.priority === 'low' ? 'selected' : ''}>Low</option>
+                                </select>
+                            </div>
+                        `;
+                        priorityListContainer.appendChild(taskItem);
+                    });
+                    
+                    // Show the modal
+                    prioritizeModal.show();
+                    
+                } catch (error) {
+                    alert('Error loading tasks: ' + error.message);
+                }
+            });
+            
+            // Save priorities button handler
+            savePrioritiesBtn.addEventListener('click', async function() {
+                try {
+                    const prioritySelects = document.querySelectorAll('.priority-select');
+                    
+                    const updatePromises = Array.from(prioritySelects).map(select => {
+                        const taskId = select.getAttribute('data-taskid');
+                        const priority = select.value;
+                        
+                        return fetch(`/update-task/${taskId}`, {
+                            method: 'PUT',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({
+                                priority: priority
+                            })
+                        });
+                    });
+                    
+                    await Promise.all(updatePromises);
+                    
+                    // Hide the modal
+                    prioritizeModal.hide();
+                    
+                    // Refresh the tasks
+                    refreshTasks();
+                    
+                } catch (error) {
+                    alert('Error saving priorities: ' + error.message);
+                }
+            });
             
             // Function to update task statistics
             async function updateTaskStats() {
@@ -378,10 +996,285 @@
                 }
             }
             
-            // Add event listeners to complete buttons
-            document.querySelectorAll('.complete-task-btn').forEach(button => {
-                button.addEventListener('click', completeTask);
+            // Quote refresh handler
+            refreshQuoteBtn.addEventListener('click', async function() {
+                try {
+                    // Add a spinning animation to the refresh icon
+                    refreshQuoteBtn.innerHTML = '<i class="bi bi-arrow-clockwise" style="animation: spin 1s linear infinite;"></i> Loading...';
+                    refreshQuoteBtn.disabled = true;
+                    
+                    const response = await fetch('/api/quote/random');
+                    if (!response.ok) {
+                        throw new Error('Failed to fetch a new quote');
+                    }
+                    
+                    const quoteData = await response.json();
+                    
+                    // Update the quote with a fade effect
+                    quoteText.style.opacity = 0;
+                    quoteAuthor.style.opacity = 0;
+                    
+                    setTimeout(() => {
+                        quoteText.textContent = `"${quoteData.quote}"`;
+                        quoteAuthor.textContent = `— ${quoteData.author}`;
+                        quoteText.style.opacity = 1;
+                        quoteAuthor.style.opacity = 1;
+                        
+                        // Reset the button
+                        refreshQuoteBtn.innerHTML = '<i class="bi bi-arrow-clockwise"></i> New Quote';
+                        refreshQuoteBtn.disabled = false;
+                    }, 300);
+                    
+                } catch (error) {
+                    console.error('Error refreshing quote:', error);
+                    
+                    // Reset the button
+                    refreshQuoteBtn.innerHTML = '<i class="bi bi-arrow-clockwise"></i> New Quote';
+                    refreshQuoteBtn.disabled = false;
+                }
             });
+            
+            // Fetch personal motivation advice
+            fetchMotivation();
+            
+            // Fetch feedback
+            fetchFeedback();
+            
+            // Setup refresh buttons
+            document.getElementById('refresh-motivation').addEventListener('click', fetchMotivation);
+            document.getElementById('refresh-feedback').addEventListener('click', fetchFeedback);
+            
+            // Function to fetch motivation
+            async function fetchMotivation() {
+                const motivationContent = document.getElementById('motivation-content');
+                
+                // Show loading state
+                motivationContent.innerHTML = `
+                    <div class="text-center py-4">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                        <p class="mt-2">Generating personalized advice...</p>
+                    </div>
+                `;
+                
+                try {
+                    const response = await fetch('/api/motivation');
+                    if (!response.ok) {
+                        throw new Error('Failed to fetch motivation data');
+                    }
+                    
+                    const data = await response.json();
+                    displayMotivation(data);
+                    
+                } catch (error) {
+                    console.error('Error:', error);
+                    motivationContent.innerHTML = `
+                        <div class="alert alert-danger">
+                            Sorry, we couldn't load your personalized advice. Please try again later.
+                        </div>
+                    `;
+                }
+            }
+            
+            // Function to display motivation data
+            function displayMotivation(data) {
+                const motivationContent = document.getElementById('motivation-content');
+                
+                // Create task list HTML if there are incomplete tasks
+                let tasksHtml = '';
+                if (data.incomplete_tasks && data.incomplete_tasks.length > 0) {
+                    tasksHtml = `
+                        <div class="focus-tasks mt-4">
+                            <h5 class="text-primary mb-3"><i class="bi bi-bullseye"></i> Focus on These Tasks</h5>
+                            <div class="list-group">
+                    `;
+                    
+                    data.incomplete_tasks.forEach(task => {
+                        // Determine badge color based on priority
+                        const priorityClass = task.priority === 'high' ? 'bg-danger' : 
+                                             task.priority === 'medium' ? 'bg-warning' : 'bg-success';
+                        
+                        tasksHtml += `
+                            <div class="list-group-item list-group-item-action">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <h6 class="mb-1">${task.title}</h6>
+                                    <span class="badge ${priorityClass}">${task.priority}</span>
+                                </div>
+                                <p class="text-muted small mb-1">${task.description}</p>
+                                ${task.due_date ? `<small class="text-danger"><i class="bi bi-calendar-event"></i> Due: ${task.due_date}</small>` : ''}
+                            </div>
+                        `;
+                    });
+                    
+                    tasksHtml += `
+                            </div>
+                        </div>
+                    `;
+                }
+                
+                // Create specific recommendations HTML if available
+                let specificAdviceHtml = '';
+                if (data.task_specific && data.task_specific.length > 0) {
+                    specificAdviceHtml = `
+                        <div class="specific-advice mt-4">
+                            <h5 class="text-primary mb-2"><i class="bi bi-info-circle"></i> Specific Recommendations</h5>
+                            <ul class="list-group">
+                    `;
+                    
+                    data.task_specific.forEach(advice => {
+                        specificAdviceHtml += `
+                            <li class="list-group-item">
+                                <i class="bi bi-arrow-right-circle-fill text-success me-2"></i>
+                                ${advice}
+                            </li>
+                        `;
+                    });
+                    
+                    specificAdviceHtml += `
+                            </ul>
+                        </div>
+                    `;
+                }
+                
+                // Create secondary advice HTML
+                let secondaryAdviceHtml = '';
+                if (data.secondary_advice && data.secondary_advice.length > 0) {
+                    secondaryAdviceHtml = `
+                        <div class="general-advice mt-4">
+                            <h5 class="text-primary mb-2"><i class="bi bi-lightbulb"></i> Additional Tips</h5>
+                            <div class="row">
+                    `;
+                    
+                    data.secondary_advice.forEach(advice => {
+                        secondaryAdviceHtml += `
+                            <div class="col-md-4 mb-2">
+                                <div class="card h-100 advice-card">
+                                    <div class="card-body">
+                                        <p class="card-text"><i class="bi bi-check-circle-fill text-success me-2"></i>${advice}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    });
+                    
+                    secondaryAdviceHtml += `
+                            </div>
+                        </div>
+                    `;
+                }
+                
+                // Assemble the complete motivation content
+                motivationContent.innerHTML = `
+                    <h3 class="motivation-heading mb-3">${data.heading}</h3>
+                    
+                    <div class="main-advice alert alert-primary">
+                        <i class="bi bi-megaphone-fill me-2"></i> <strong>${data.main_advice}</strong>
+                    </div>
+                    
+                    ${tasksHtml}
+                    ${specificAdviceHtml}
+                    ${secondaryAdviceHtml}
+                    
+                    <div class="quote-block mt-4 p-3 bg-light rounded">
+                        <blockquote class="blockquote mb-0">
+                            <p><i class="bi bi-quote"></i> ${data.quote.quote}</p>
+                            <footer class="blockquote-footer">${data.quote.author}</footer>
+                        </blockquote>
+                    </div>
+                    
+                    <div class="text-center mt-4">
+                        <a href="/tasks" class="btn btn-primary">Go to Tasks <i class="bi bi-arrow-right"></i></a>
+                    </div>
+                `;
+                
+                // Add animation to the motivation content
+                const motivationCard = document.querySelector('.motivation-card');
+                motivationCard.classList.add('fade-in');
+            }
+            
+            // Function to fetch feedback
+            async function fetchFeedback() {
+                const feedbackContent = document.getElementById('feedback-content');
+                
+                // Show loading state
+                feedbackContent.innerHTML = `
+                    <div class="text-center py-4">
+                        <div class="spinner-border text-success" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                        <p class="mt-2">Analyzing your progress...</p>
+                    </div>
+                `;
+                
+                try {
+                    const response = await fetch('/api/feedback');
+                    if (!response.ok) {
+                        throw new Error('Failed to fetch feedback data');
+                    }
+                    
+                    const data = await response.json();
+                    
+                    // Display the feedback
+                    feedbackContent.innerHTML = `
+                        <div class="feedback-message">${data.message}</div>
+                        <div class="feedback-content">
+                            <div class="row">
+                                <div class="col-md-8">
+                                    <div class="recent-tasks mb-3">
+                                        <h5>Recent Accomplishments</h5>
+                                        ${data.recent_completions.length > 0 ? 
+                                            `<ul class="list-group">
+                                                ${data.recent_completions.map(task => 
+                                                    `<li class="list-group-item">
+                                                        <span class="task-title">${task.title}</span>
+                                                        <span class="badge bg-success float-end">Completed</span>
+                                                    </li>`
+                                                ).join('')}
+                                            </ul>` : 
+                                            `<p class="empty-state p-3">No tasks completed recently. Complete a task to see it here!</p>`
+                                        }
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="completed-stats text-center">
+                                        <h5>Your Progress</h5>
+                                        <div class="progress mb-3">
+                                            <div class="progress-bar bg-success" role="progressbar" style="width: ${data.completion_rate}%" 
+                                                aria-valuenow="${data.completion_rate}" aria-valuemin="0" aria-valuemax="100">
+                                                ${data.completion_rate}%
+                                            </div>
+                                        </div>
+                                        <p>
+                                            <span class="badge bg-primary">${data.stats.total_completions}</span> Tasks Completed
+                                        </p>
+                                        ${data.stats.streak ? 
+                                            `<p><span class="badge bg-warning">${data.stats.streak}</span> Day Streak</p>` : 
+                                            ''
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="feedback-tips">
+                                <h5><i class="bi bi-lightbulb"></i> Personal Insight</h5>
+                                <p>${data.insight}</p>
+                            </div>
+                        </div>
+                    `;
+                    
+                } catch (error) {
+                    console.error('Error:', error);
+                    feedbackContent.innerHTML = `
+                        <div class="alert alert-danger">
+                            Sorry, we couldn't load your feedback. Please try again later.
+                        </div>
+                    `;
+                }
+            }
+            
+            // Initialize event listeners and fetch tasks on page load
+            addTaskEventListeners();
         });
     </script>
 </body>

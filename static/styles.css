@@ -3,7 +3,7 @@
 .task-card {
     margin-bottom: 15px;
     border-left: 5px solid #007bff;
-    transition: transform 0.2s ease-in-out;
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
 }
 
 .task-card:hover {
@@ -76,6 +76,50 @@
     animation: fadeIn 0.5s ease-out forwards;
 }
 
+/* Navigation and content sections */
+.content-section {
+    display: none;
+}
+
+.content-section.active {
+    display: block;
+    animation: fadeIn 0.3s ease-out forwards;
+}
+
+#tasks-section {
+    display: block; /* Tasks section visible by default */
+}
+
+.task-tools {
+    margin-bottom: 15px;
+}
+
+.task-tools .btn {
+    margin-right: 5px;
+}
+
+.edit-task-form {
+    margin-top: 10px;
+    display: none;
+}
+
+.calendar-container {
+    background-color: #fff;
+    border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    min-height: 400px;
+}
+
+.profile-container {
+    background-color: #fff;
+    border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
 /* Responsive adjustments */
 @media (max-width: 768px) {
     .container {
@@ -85,4 +129,476 @@
     .form-container, .stats-card {
         padding: 15px;
     }
+}
+
+/* Add your custom styles here */
+
+/* Due date styling */
+.due-soon {
+    color: #fd7e14;
+    font-weight: 600;
+}
+
+.overdue {
+    color: #dc3545;
+    font-weight: 600;
+}
+
+.reminder-badge {
+    margin-right: 5px;
+}
+
+/* Highlight effect for task when notification is clicked */
+@keyframes highlightTask {
+    0% { box-shadow: 0 0 5px rgba(0,123,255,0.3); }
+    50% { box-shadow: 0 0 20px rgba(0,123,255,0.7); }
+    100% { box-shadow: 0 0 5px rgba(0,123,255,0.3); }
+}
+
+.highlight-task {
+    animation: highlightTask 1s infinite;
+    border: 1px solid #007bff;
+}
+
+/* Edit form styling */
+.edit-task-form {
+    display: none;
+    margin-top: 15px;
+    padding: 15px;
+    border-top: 1px solid #dee2e6;
+}
+
+/* Loader animation */
+.loader {
+    display: none;
+    border: 5px solid #f3f3f3;
+    border-radius: 50%;
+    border-top: 5px solid #007bff;
+    width: 50px;
+    height: 50px;
+    animation: spin 1s linear infinite;
+    margin: 20px auto;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Add a subtle pulse animation for reminders */
+@keyframes reminderPulse {
+    0% { opacity: 0.8; }
+    50% { opacity: 1; }
+    100% { opacity: 0.8; }
+}
+
+.reminder-badge {
+    animation: reminderPulse 2s infinite;
+}
+
+/* Profile page styles */
+.profile-section {
+    margin-top: 20px;
+    margin-bottom: 40px;
+}
+
+.profile-avatar {
+    padding: 20px;
+    background-color: #f8f9fa;
+    border-radius: 50%;
+    width: 180px;
+    height: 180px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+
+.user-info-card, .user-stats-card {
+    background-color: #fff;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+.user-info-item {
+    padding: 10px;
+    border-bottom: 1px solid #f1f1f1;
+}
+
+.user-info-item:last-child {
+    border-bottom: none;
+}
+
+.stats-box {
+    box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+    border: 1px solid #e9ecef;
+    transition: transform 0.2s ease-in-out;
+}
+
+.stats-box:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 12px rgba(0,0,0,0.1);
+}
+
+/* Progress bar animation */
+@keyframes progressBarAnimation {
+    0% { width: 0; }
+}
+
+.progress-bar {
+    animation: progressBarAnimation 1s ease-out forwards;
+}
+
+/* Feedback and appreciation styles */
+.feedback-container {
+    background-color: #fff;
+    border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    border-left: 5px solid #28a745;
+}
+
+.feedback-message {
+    font-size: 1.2rem;
+    font-weight: 500;
+    color: #212529;
+    margin-bottom: 1rem;
+}
+
+.feedback-content {
+    padding: 10px 0;
+}
+
+.recent-tasks h5 {
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.task-title {
+    font-weight: 600;
+}
+
+.feedback-tips {
+    background-color: #f8f9fa;
+    padding: 15px;
+    border-radius: 8px;
+    margin-top: 15px;
+    border-left: 3px solid #17a2b8;
+}
+
+.feedback-tips h5 {
+    color: #17a2b8;
+    font-size: 1rem;
+    margin-bottom: 10px;
+}
+
+.feedback-tips p {
+    margin-bottom: 0;
+    font-size: 0.95rem;
+}
+
+.empty-state {
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    opacity: 0.9;
+}
+
+/* Animation for stars in feedback header */
+@keyframes twinkle {
+    0% { opacity: 0.7; transform: scale(1); }
+    50% { opacity: 1; transform: scale(1.2); }
+    100% { opacity: 0.7; transform: scale(1); }
+}
+
+.bi-stars {
+    color: #ffc107;
+    animation: twinkle 2s infinite;
+    display: inline-block;
+}
+
+/* Task accomplishment badges */
+.completed-stats .badge {
+    font-size: 1rem;
+}
+
+/* Task Page Styles */
+.tasks-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+/* Procrastination Analysis Styles */
+.procrastination-card {
+    background-color: #fff;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    padding: 20px;
+    margin-bottom: 30px;
+    transition: all 0.3s ease;
+}
+
+.procrastination-card:hover {
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+}
+
+#procrastination-content {
+    transition: opacity 0.3s ease;
+}
+
+.patterns-container,
+.recommendations-container {
+    margin-top: 20px;
+}
+
+.priority-stats {
+    text-align: center;
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 15px;
+}
+
+.high-priority-stats {
+    background-color: rgba(220, 53, 69, 0.1);
+}
+
+.medium-priority-stats {
+    background-color: rgba(255, 193, 7, 0.1);
+}
+
+.low-priority-stats {
+    background-color: rgba(40, 167, 69, 0.1);
+}
+
+.priority-label {
+    font-weight: 600;
+    margin-bottom: 10px;
+}
+
+.completion-circle {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    border: 10px solid #e9ecef;
+    margin: 0 auto 15px;
+    position: relative;
+    background: conic-gradient(
+        var(--bs-primary) 0% var(--completion-rate),
+        #e9ecef var(--completion-rate) 100%
+    );
+    transform: rotate(-90deg);
+    opacity: 0.8;
+    transition: all 0.5s ease;
+}
+
+.completion-circle.animated {
+    opacity: 1;
+    transform: rotate(0deg);
+}
+
+.completion-circle::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: calc(100% - 20px);
+    height: calc(100% - 20px);
+    background-color: white;
+    border-radius: 50%;
+}
+
+.completion-text {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) rotate(90deg);
+    font-weight: bold;
+    color: var(--bs-dark);
+}
+
+.high-priority-stats .completion-circle {
+    background: conic-gradient(
+        var(--bs-danger) 0% var(--completion-rate),
+        #e9ecef var(--completion-rate) 100%
+    );
+}
+
+.medium-priority-stats .completion-circle {
+    background: conic-gradient(
+        var(--bs-warning) 0% var(--completion-rate),
+        #e9ecef var(--completion-rate) 100%
+    );
+}
+
+.low-priority-stats .completion-circle {
+    background: conic-gradient(
+        var(--bs-success) 0% var(--completion-rate),
+        #e9ecef var(--completion-rate) 100%
+    );
+}
+
+.recommendation-item {
+    padding: 10px 0;
+    border-bottom: 1px solid #f3f3f3;
+    display: flex;
+    align-items: flex-start;
+}
+
+.recommendation-item:last-child {
+    border-bottom: none;
+}
+
+.overdue-warning {
+    text-align: center;
+    font-weight: 600;
+}
+
+.productivity-tip {
+    font-size: 0.9rem;
+}
+
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+/* Stats card (used in both procrastination and task stats) */
+.stats-card {
+    background-color: #fff;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    padding: 20px;
+    margin-bottom: 30px;
+}
+
+/* Task List Styles */
+.task-list {
+    list-style: none;
+    padding: 0;
+}
+
+.task-list li {
+    padding: 10px;
+    border-bottom: 1px solid #f3f3f3;
+}
+
+.task-list li:last-child {
+    border-bottom: none;
+}
+
+/* Motivational Advice Styles */
+.motivation-card {
+    transition: all 0.3s ease;
+    opacity: 0;
+    transform: translateY(20px);
+}
+
+.motivation-card.fade-in {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.motivation-heading {
+    color: #343a40;
+    font-weight: 600;
+    border-bottom: 2px solid #f8f9fa;
+    padding-bottom: 10px;
+    margin-bottom: 20px;
+}
+
+.main-advice {
+    font-size: 1.1rem;
+    border-left: 4px solid #007bff;
+}
+
+.focus-tasks .list-group-item {
+    transition: transform 0.2s ease;
+    border-left: 3px solid transparent;
+}
+
+.focus-tasks .list-group-item:hover {
+    transform: translateX(5px);
+    background-color: #f8f9fa;
+}
+
+.advice-card {
+    transition: all 0.2s ease;
+    border-top: 3px solid #6c757d;
+}
+
+.advice-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+.quote-block {
+    font-style: italic;
+    border-left: 3px solid #17a2b8;
+}
+
+.specific-advice .list-group-item {
+    border-left: 3px solid #28a745;
+    transition: background-color 0.2s ease;
+}
+
+.specific-advice .list-group-item:hover {
+    background-color: #f8f9fa;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.feature-card {
+    background-color: #fff;
+    border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    text-align: center;
+    transition: transform 0.2s ease-in-out;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.feature-card:hover {
+    transform: translateY(-5px);
+}
+
+.feature-icon {
+    font-size: 2rem;
+    margin-bottom: 15px;
+    color: #007bff;
+}
+
+.feature-title {
+    font-weight: 600;
+    margin-bottom: 10px;
+}
+
+.feature-card p {
+    flex-grow: 1;
+    margin-bottom: 15px;
+}
+
+.feature-card .btn {
+    transition: all 0.2s ease-in-out;
+}
+
+.feature-card .btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
 } 

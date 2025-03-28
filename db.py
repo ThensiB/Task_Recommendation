@@ -69,13 +69,40 @@ if not AWS_ACCESS_KEY or not AWS_SECRET_KEY:
         return new_user
     
     # Task operations for local storage
+    def save_task(username, task):
+        """Save a single task for a user"""
+        all_tasks = _load_data(TASKS_FILE)
+        
+        # If task_id not provided, generate one
+        if not task.get('task_id'):
+            task['task_id'] = str(uuid.uuid4())
+            
+        task_item = {
+            'task_id': task.get('task_id'),
+            'username': username,
+            'title': task.get('title'),
+            'description': task.get('description'),
+            'priority': task.get('priority'),
+            'estimated_duration': task.get('estimated_duration'),
+            'status': task.get('status', 'pending'),
+            'category': task.get('category', ''),
+            'due_date': task.get('due_date'),
+            'due_time': task.get('due_time'),
+            'reminder': task.get('reminder', False),
+            'created_at': datetime.now().isoformat()
+        }
+        
+        all_tasks.append(task_item)
+        _save_data(all_tasks, TASKS_FILE)
+        return task_item
+    
     def save_tasks(username, tasks):
-        """Save tasks for a user"""
+        """Save multiple tasks for a user"""
         all_tasks = _load_data(TASKS_FILE)
         saved_tasks = []
         
         for task in tasks:
-            task_id = str(uuid.uuid4())
+            task_id = task.get('task_id', str(uuid.uuid4()))
             task_item = {
                 'task_id': task_id,
                 'username': username,
@@ -84,7 +111,10 @@ if not AWS_ACCESS_KEY or not AWS_SECRET_KEY:
                 'priority': task.get('priority'),
                 'estimated_duration': task.get('estimated_duration'),
                 'status': task.get('status', 'pending'),
-                'category': task.get('category'),
+                'category': task.get('category', ''),
+                'due_date': task.get('due_date'),
+                'due_time': task.get('due_time'),
+                'reminder': task.get('reminder', False),
                 'created_at': datetime.now().isoformat()
             }
             
@@ -111,6 +141,38 @@ if not AWS_ACCESS_KEY or not AWS_SECRET_KEY:
                 return task
                 
         return None
+    
+    def update_task(username, task_id, task_data):
+        """Update task details"""
+        all_tasks = _load_data(TASKS_FILE)
+        
+        for i, task in enumerate(all_tasks):
+            if task.get('task_id') == task_id and task.get('username') == username:
+                # Preserve original data that shouldn't be updated
+                task_data['username'] = username
+                task_data['task_id'] = task_id
+                task_data['created_at'] = task.get('created_at')
+                task_data['status'] = task_data.get('status', task.get('status'))
+                task_data['updated_at'] = datetime.now().isoformat()
+                
+                # Update the task
+                all_tasks[i] = task_data
+                _save_data(all_tasks, TASKS_FILE)
+                return True
+                
+        return False
+    
+    def delete_task(username, task_id):
+        """Delete a task"""
+        all_tasks = _load_data(TASKS_FILE)
+        
+        for i, task in enumerate(all_tasks):
+            if task.get('task_id') == task_id and task.get('username') == username:
+                del all_tasks[i]
+                _save_data(all_tasks, TASKS_FILE)
+                return True
+                
+        return False
     
     def get_task_stats(username):
         """Get task statistics for a user"""
@@ -233,13 +295,43 @@ else:
                 return None
 
         # Task operations
+        def save_task(username, task):
+            """Save a single task for a user"""
+            table = dynamodb.Table(TASKS_TABLE)
+            
+            # If task_id not provided, generate one
+            if not task.get('task_id'):
+                task['task_id'] = str(uuid.uuid4())
+                
+            task_item = {
+                'task_id': task.get('task_id'),
+                'username': username,
+                'title': task.get('title'),
+                'description': task.get('description'),
+                'priority': task.get('priority'),
+                'estimated_duration': task.get('estimated_duration'),
+                'status': task.get('status', 'pending'),
+                'category': task.get('category', ''),
+                'due_date': task.get('due_date'),
+                'due_time': task.get('due_time'),
+                'reminder': task.get('reminder', False),
+                'created_at': datetime.now().isoformat()
+            }
+            
+            try:
+                table.put_item(Item=task_item)
+                return task_item
+            except (ClientError, NoCredentialsError, EndpointConnectionError) as e:
+                print(f"Error saving task: {e}")
+                return None
+        
         def save_tasks(username, tasks):
-            """Save tasks for a user"""
+            """Save multiple tasks for a user"""
             table = dynamodb.Table(TASKS_TABLE)
             saved_tasks = []
             
             for task in tasks:
-                task_id = str(uuid.uuid4())
+                task_id = task.get('task_id', str(uuid.uuid4()))
                 task_item = {
                     'task_id': task_id,
                     'username': username,
@@ -248,7 +340,10 @@ else:
                     'priority': task.get('priority'),
                     'estimated_duration': task.get('estimated_duration'),
                     'status': task.get('status', 'pending'),
-                    'category': task.get('category'),
+                    'category': task.get('category', ''),
+                    'due_date': task.get('due_date'),
+                    'due_time': task.get('due_time'),
+                    'reminder': task.get('reminder', False),
                     'created_at': datetime.now().isoformat()
                 }
                 
@@ -291,6 +386,70 @@ else:
             except (ClientError, NoCredentialsError, EndpointConnectionError) as e:
                 print(f"Error updating task: {e}")
                 return None
+        
+        def update_task(username, task_id, task_data):
+            """Update task details"""
+            table = dynamodb.Table(TASKS_TABLE)
+            
+            # First verify the task belongs to the user
+            try:
+                response = table.get_item(Key={'task_id': task_id})
+                task = response.get('Item')
+                
+                if not task or task.get('username') != username:
+                    return False
+                
+                # Prepare update expression
+                update_expression = "set "
+                expression_attribute_values = {
+                    ':u': datetime.now().isoformat()
+                }
+                
+                # Add all fields to update
+                fields = ['title', 'description', 'priority', 'estimated_duration', 'category', 'status', 'due_date', 'due_time', 'reminder']
+                for i, field in enumerate(fields):
+                    if field in task_data:
+                        update_expression += f"#{field} = :{field}, "
+                        expression_attribute_values[f':{field}'] = task_data[field]
+                
+                # Add updated_at field
+                update_expression += "updated_at = :u"
+                
+                # Create attribute names mapping
+                expression_attribute_names = {f"#{field}": field for field in fields if field in task_data}
+                
+                # Update the item
+                response = table.update_item(
+                    Key={'task_id': task_id},
+                    UpdateExpression=update_expression,
+                    ExpressionAttributeNames=expression_attribute_names,
+                    ExpressionAttributeValues=expression_attribute_values,
+                    ReturnValues="UPDATED_NEW"
+                )
+                
+                return True
+            except (ClientError, NoCredentialsError, EndpointConnectionError) as e:
+                print(f"Error updating task: {e}")
+                return False
+        
+        def delete_task(username, task_id):
+            """Delete a task"""
+            table = dynamodb.Table(TASKS_TABLE)
+            
+            # First verify the task belongs to the user
+            try:
+                response = table.get_item(Key={'task_id': task_id})
+                task = response.get('Item')
+                
+                if not task or task.get('username') != username:
+                    return False
+                
+                # Delete the task
+                table.delete_item(Key={'task_id': task_id})
+                return True
+            except (ClientError, NoCredentialsError, EndpointConnectionError) as e:
+                print(f"Error deleting task: {e}")
+                return False
 
         def get_task_stats(username):
             """Get task statistics for a user"""
@@ -367,13 +526,40 @@ else:
             return new_user
         
         # Task operations for local storage
+        def save_task(username, task):
+            """Save a single task for a user"""
+            all_tasks = _load_data(TASKS_FILE)
+            
+            # If task_id not provided, generate one
+            if not task.get('task_id'):
+                task['task_id'] = str(uuid.uuid4())
+                
+            task_item = {
+                'task_id': task.get('task_id'),
+                'username': username,
+                'title': task.get('title'),
+                'description': task.get('description'),
+                'priority': task.get('priority'),
+                'estimated_duration': task.get('estimated_duration'),
+                'status': task.get('status', 'pending'),
+                'category': task.get('category', ''),
+                'due_date': task.get('due_date'),
+                'due_time': task.get('due_time'),
+                'reminder': task.get('reminder', False),
+                'created_at': datetime.now().isoformat()
+            }
+            
+            all_tasks.append(task_item)
+            _save_data(all_tasks, TASKS_FILE)
+            return task_item
+        
         def save_tasks(username, tasks):
-            """Save tasks for a user"""
+            """Save multiple tasks for a user"""
             all_tasks = _load_data(TASKS_FILE)
             saved_tasks = []
             
             for task in tasks:
-                task_id = str(uuid.uuid4())
+                task_id = task.get('task_id', str(uuid.uuid4()))
                 task_item = {
                     'task_id': task_id,
                     'username': username,
@@ -382,7 +568,10 @@ else:
                     'priority': task.get('priority'),
                     'estimated_duration': task.get('estimated_duration'),
                     'status': task.get('status', 'pending'),
-                    'category': task.get('category'),
+                    'category': task.get('category', ''),
+                    'due_date': task.get('due_date'),
+                    'due_time': task.get('due_time'),
+                    'reminder': task.get('reminder', False),
                     'created_at': datetime.now().isoformat()
                 }
                 
@@ -409,6 +598,38 @@ else:
                     return task
                     
             return None
+        
+        def update_task(username, task_id, task_data):
+            """Update task details"""
+            all_tasks = _load_data(TASKS_FILE)
+            
+            for i, task in enumerate(all_tasks):
+                if task.get('task_id') == task_id and task.get('username') == username:
+                    # Preserve original data that shouldn't be updated
+                    task_data['username'] = username
+                    task_data['task_id'] = task_id
+                    task_data['created_at'] = task.get('created_at')
+                    task_data['status'] = task_data.get('status', task.get('status'))
+                    task_data['updated_at'] = datetime.now().isoformat()
+                    
+                    # Update the task
+                    all_tasks[i] = task_data
+                    _save_data(all_tasks, TASKS_FILE)
+                    return True
+                    
+            return False
+        
+        def delete_task(username, task_id):
+            """Delete a task"""
+            all_tasks = _load_data(TASKS_FILE)
+            
+            for i, task in enumerate(all_tasks):
+                if task.get('task_id') == task_id and task.get('username') == username:
+                    del all_tasks[i]
+                    _save_data(all_tasks, TASKS_FILE)
+                    return True
+                    
+            return False
         
         def get_task_stats(username):
             """Get task statistics for a user"""

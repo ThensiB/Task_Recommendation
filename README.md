@@ -1,6 +1,6 @@
-# AI-Powered Task Management System
+# AI-Powered Task Management Web App
 
-A sophisticated task management system that leverages artificial intelligence to provide personalized task recommendations, productivity insights, and motivational support.
+A smart task management system that leverages artificial intelligence to provide personalized task recommendations, productivity insights, and motivational support.
 
 ## 🌟 Key Features
 
@@ -146,18 +146,6 @@ A sophisticated task management system that leverages artificial intelligence to
 - Fallback: Local JSON storage
 - Automatic data synchronization
 - Backup and recovery options
-
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create a feature branch
-3. Commit your changes
-4. Push to the branch
-5. Create a Pull Request
-
-## 📝 License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
 
 ## 🙏 Acknowledgments
 
